@@ -1,0 +1,179 @@
+<html>
+    <head>
+        <title>Three address code Copiler</title>
+        <meta charset="utf-8" />
+        <style>
+            body
+            {
+                font-family: arial;
+                background-color:#dbdbdb;
+                text-align: center;
+            }
+            #header-text
+            {
+                width:100%;
+                height:auto;
+                text-align: center;
+                padding-bottom:10px;
+            }
+            #header-text h2
+            {
+                color:#08082e;   
+            }
+            #header-text p
+            {
+                color:#575757;
+            }
+            #entry
+            {
+                width:100%;
+            }
+            #entry .codeBox
+            {
+                float:left;
+                width:300px;
+            }
+            #entry .codeBox p
+            {
+                font-size:15pt;  
+                color:#ab7900;
+                margin:10px 10px 10px 0px;
+            }
+            #entry .options
+            {
+                float:left;
+                width:300px;
+                margin-left:150px;
+                padding-top:30px;
+                text-align: center;
+            }
+            .clear
+            {
+                clear:both;
+            }
+            #results
+            {
+                width:100%;                              
+                padding: 20px;
+            }
+            #results .resultBox
+            {
+                float:left;
+                width:340px;
+                //height: 400px;
+                background-color: #f1f2f6;
+                text-align: center;
+                margin:20px;
+            }
+            .resultBox h2
+            {
+                color:#000000;   
+            }
+            .resultBox pre
+            {
+                text-align: left;
+                margin: 5px;
+                height: 350px;
+                overflow-y: scroll;
+                width: 330px;
+            }
+            #footer
+            {
+                width:100%;
+                font-size: 10pt;
+                text-align: center;
+            }
+            .btn 
+            {
+                float:left;
+                xmargin:20px auto 20px auto;
+                min-width: 230px;
+                
+                background: #ebbd5b;
+                background-image: -webkit-linear-gradient(top, #ebbd5b, #d4a73e);
+                background-image: -moz-linear-gradient(top, #ebbd5b, #d4a73e);
+                background-image: -ms-linear-gradient(top, #ebbd5b, #d4a73e);
+                background-image: -o-linear-gradient(top, #ebbd5b, #d4a73e);
+                background-image: linear-gradient(to bottom, #ebbd5b, #d4a73e);
+                -webkit-border-radius: 12;
+                -moz-border-radius: 12;
+                border-radius: 12px;
+                font-family: Arial;
+                color: #ffffff;
+                font-size: 20px;
+                padding: 10px 20px 10px 20px;
+                text-decoration: none;
+                margin: 10px;
+            }
+
+            .btn:hover
+            {
+                background: #dba933;
+                text-decoration: none;   
+            }
+            .btn:active 
+            {
+                background: #cf9f2d;
+                background-image: -webkit-linear-gradient(top, #cf9f2d, #dba933);
+                background-image: -moz-linear-gradient(top, #cf9f2d, #dba933);
+                background-image: -ms-linear-gradient(top, #cf9f2d, #dba933);
+                background-image: -o-linear-gradient(top, #cf9f2d, #dba933);
+                background-image: linear-gradient(to bottom, #cf9f2d, #dba933);
+                text-decoration: none;
+            }
+            .doprocess{
+                cursor: pointer;
+            }
+        </style>
+        <script type="text/javascript" src="JParser.js"></script>
+        <script type="text/javascript" src="functions.js"></script>
+        <script type="text/javascript" src="assembler.js"></script>
+        <script type="text/javascript">
+            var testCode = 'int a[5]\nint x\nx=1\nlbl:y=x+2\nz=10\nx=-y+1\nif y>z     goto   mmm\nx=2+7\ngoto lbl\nmmm:int n\nn=y-x\nn=a[3]';
+            function AddtestCode(test){
+                if(test==null)
+                    test=testCode;
+                document.getElementById('code').value=test;
+            }
+        </script>
+    </head>
+    <body>
+        <table align="center">
+        <tr>
+        <td>
+            <div id="header-text">
+                <h2>Three-Adress Code Compiler</h2>
+                <p>A Javascript based three-address code compiler by Abdulkader Makki & Nour edin Al-Habal</p>
+            </div>
+            <div id="entry">
+                <div class="codeBox">
+                    <p>Write three adress code here:</p>
+                    <textarea class="codeEntry" id="code" cols="40" rows="15"></textarea>
+                </div>
+                <div class="options">
+                    <a href="#" class="btn" onclick="AddtestCode(testCode)">Use test code</a>
+                    <a  class="btn doprocess" onclick="DoParse()">Convert to Assembly</a>
+                    <a  class="btn doprocess" onclick="DoPass();">Show machine Code</a>
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div id="results">
+                <div class="resultBox">
+                    <h2>Assembly Code</h2>
+                    <pre id="assembResult">result will appear here..</pre>
+                </div>
+                <div class="resultBox">
+                    <h2>Machine Code</h2>
+                    <pre id="machineResult">result will appear here..</pre>
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div id="footer">
+                <a href="#">About</a> | <a href="#">Contact us</a> | <a href="#">Documentation</a> | No rights reserved!
+            </div>
+        </td>
+        </tr>
+        </table>
+
+    </body>
+</html>

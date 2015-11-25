@@ -1,0 +1,306 @@
+
+<!--
+Author AbdulKader Makki
+-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Mano Assembler V1.0</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <style type="text/css">
+            table.hovertable {
+                font-family: verdana,arial,sans-serif;
+                font-size:11px;
+                color:#333333;
+                border-width: 1px;
+                border-color: #999999;
+                border-collapse: collapse;
+            }
+            table.hovertable th {
+                background-color:#c3dde0;
+                border-width: 1px;
+                padding: 8px;
+                border-style: solid;
+                border-color: #a9c6c9;
+            }
+            table.hovertable tr {
+                background-color:#d4e3e5;
+            }
+            table.hovertable td {
+                border-width: 1px;
+                padding: 8px;
+                border-style: solid;
+                border-color: #a9c6c9;
+            }
+            #ff
+            {
+                border:2px solid green;
+                -moz-border-radius:8px;
+                -webkit-border-radius:8px;	
+                border-radius:8px;	
+            }
+            #footer {
+                font-family: Verdana, Geneva, sans-serif;
+                font-size: 0.7em;
+                font-weight: bold;
+                color: #FFF;
+                background-color: #666;
+                padding: 10px;
+                margin: 20px;
+                height: auto;
+                width: 90%;
+                bottom: 0;
+                position: absolute
+            }
+            html,
+            body {
+                margin:0;
+                padding:0;
+                height:100%;
+            }
+            #wrapper {
+                min-height:100%;
+                position:relative;
+            }
+            #content {
+                padding:10px;
+                padding-bottom:80px;   /* Height of the footer element */
+            }
+            select.soflow-color {
+   color: #fff;
+   
+   background-color: #779126;
+   -webkit-border-radius: 20px;
+   -moz-border-radius: 20px;
+   border-radius: 20px;
+   padding-left: 15px;
+   margin-left: 15px
+}
+        </style>
+        <script type="text/javascript">
+            function inite(){
+                symbolTab=[];
+            }
+        </script>
+        <script type="text/javascript">
+            var cody  = [];
+            var symbolTab = [];
+            function Pass1(){
+                if(document.getElementById('code').value=="" || document.getElementById('code').value==null){alert('Please Enter Assembly code...!');return false;}
+                cody  = [];
+                symbolTab = [];
+                var LC = 0;
+                var gettext = document.getElementById('code').value;
+                var code = gettext.split("\n");
+                var i=0;
+                while(i<code.length && code[i].toLowerCase().trim()!="end"){
+                    code[i]=code[i].replace(/\/.*/, "")   //deal comments
+                    var line = new Array(4);
+                    if(code[i].indexOf(",") > -1){
+                        var cmd1 = code[i].split(",");
+                        line[0] = cmd1[0].trim();
+                        cmd1 = cmd1[1].trim().split(/\s+/);
+                        line[1] = cmd1[0].trim();
+                        if(cmd1.length>1)
+                            for(var n=1 ; n<cmd1.length;n++)
+                                line[n+1] = cmd1[n].trim();
+                    }
+                    else if(code[i].trim().length == 0){i++;continue;}  //skip new(empty) line
+                    else {
+                        var cmd1 = code[i].replace(/^\s+/,"").split(/\s+/);
+                        line[1] = cmd1[0].trim();
+                        if(cmd1.length>1)
+                            for(var n=1 ; n<cmd1.length;n++)
+                                line[n+1] = cmd1[n].trim();
+                    }
+                    cody.push({col1:line[0] , col2:line[1] , col3:line[2] , col4:line[3]});
+                    i++
+                }
+                /////////////////////////////////////////////////////
+                for(var j=0 ;j<cody.length;j++){
+                    if(cody[j].col1!=null || cody[j].col1!=undefined){
+                        if(cody[j].col1.length>3){alert('Label ('+cody[j].col1+') is more than 3 char');return false;}
+                        if(checkLabel(cody[j].col1)) {alert("Error: label ("+cody[j].col1+") has been defined");return false;}
+                        symbolTab.push({label:cody[j].col1 , LC:LC});
+                        LC = (parseInt(LC, 16) + parseInt(1, 16)).toString(16).toUpperCase();
+                    }
+                    else if(cody[j].col2.toLowerCase()=='org'){
+                        if(!/^[0-9A-F]+$/.test(cody[j].col3)){alert('ORG with error address');return false;}
+                        LC = cody[j].col3;
+                    }
+                    else{
+                        LC = (parseInt(LC, 16) + parseInt(1, 16)).toString(16).toUpperCase();
+                    }
+                }
+                var tb = document.getElementById('SymbolTable');
+                tb.innerHTML="<caption>Symbol Table</caption><tr><th>Label</th><th>LC</th></tr>";
+                for(var i=0; i<symbolTab.length; i++){ 
+                    tb.innerHTML+='<tr onmouseover="this.style.backgroundColor=\'#ffff66\';" onmouseout="this.style.backgroundColor=\'#d4e3e5\';"><td>'+symbolTab[i].label+'</td><td>'+symbolTab[i].LC+'</td></tr>'
+                }
+            }
+            ///////////////////////////////////////////////////
+            ///////////////////////////////////////////////////
+            function checkLabel(label){
+                for(var n=0 ; n<symbolTab.length ; n++){
+                    if(symbolTab[n].label.toLowerCase() == label.toLowerCase()) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        </script>
+        <script type="text/javascript">
+            var Hexa=[]
+            var MRI = ['and','add','lda','sta','bun','bsa','isz'];
+            var NMRI = [{opcode:7800 , ins:'cla'},
+                {opcode:7400 , ins:'cle'},
+                {opcode:7200 , ins:'cma'},
+                {opcode:7100 , ins:'cme'},
+                {opcode:7080 , ins:'cir'},
+                {opcode:7040 , ins:'cil'},
+                {opcode:7020 , ins:'inc'},
+                {opcode:7010 , ins:'spa'},
+                {opcode:7008 , ins:'sna'},
+                {opcode:7004 , ins:'sza'},
+                {opcode:7002 , ins:'sze'},
+                {opcode:7001 , ins:'hlt'},
+                {opcode:'F800' , ins:'inp'},
+                {opcode:'F400' , ins:'out'},
+                {opcode:'F200' , ins:'ski'},
+                {opcode:'F100' , ins:'sko'},
+                {opcode:'F080' , ins:'ion'},
+                {opcode:'F040' , ins:'iof'}]
+            function Pass2(cody , symbolTable){
+                document.getElementById('ff').style.display='none'
+                if(symbolTable.length==0){alert('Should run Pass1 First!');return false;}
+                Hexa=[];
+                var LC=0 ;
+                var i=0;
+                while(i<cody.length){
+                    //PESUDO
+                    if(cody[i].col2.toLowerCase()=='org'){
+                        if(!/^[0-9A-F]+$/.test(cody[i].col3)){alert('ORG with error address');return false;}
+                        LC=cody[i].col3;
+                    }
+                    else if(cody[i].col2.toLowerCase()=='dec'){
+                        if(!/^(-)*[0-9]+$/.test(cody[i].col3)){alert('DEC with error address');return false;}
+                        Hexa.push({LC:formatHex(LC) , opcode:DEC2HEX(Number(cody[i].col3))});
+                        LC= (parseInt(LC, 16)+1).toString(16);
+                    }
+                    else if(cody[i].col2.toLowerCase()=='hex'){
+                        if(!/^[0-9A-F]+$/.test(cody[i].col3)){alert('HEX with error address');return false;}
+                        Hexa.push({LC:formatHex(LC) , opcode:formatHex((cody[i].col3))});
+                        LC=(parseInt(LC, 16)+1).toString(16);
+                    }
+                    //MRI
+                    else if(cody[i].col3!="" && cody[i].col3!=undefined && cody[i].col3!=null){
+                        var s;
+                        if(cody[i].col4!="" && cody[i].col4!=undefined && cody[i].col4.toLowerCase()=="i"){
+                            s=(8+MRI.indexOf(cody[i].col2.toLowerCase())).toString(16).toUpperCase();
+                        }
+                        else
+                        {s=MRI.indexOf(cody[i].col2.toLowerCase());}
+                        if(parseInt(s, 16)>-1){
+                            var op = s+ formatHex(checkel(cody[i].col3,symbolTable).LC,3)
+                            Hexa.push({LC:formatHex(LC) , opcode:op});
+                            LC=(parseInt(LC, 16)+1).toString(16);
+                        }
+                        else{alert('Wrong MRI/ORG instruction...');return false;}
+                    }
+                    //Non-MRI
+                    else if((s=checkel(cody[i].col2.toLowerCase(), NMRI))!=null){
+                        Hexa.push({LC:formatHex(LC) , opcode:s.opcode});
+                        LC=(parseInt(LC, 16)+1).toString(16);
+                    }
+                    else {alert('Wrong Instruction...');return false;}
+                    /////////////////////////////////////
+                    i++
+                }
+                
+                
+                /////////View M-Code///////
+                var mdiv = document.getElementById('mcode');
+                var Vcode = document.getElementById('vcode');
+                mdiv.innerHTML='';
+                if(Vcode.value=='Hexadicmal')
+                for(var n=0;n<Hexa.length;n++)
+                    {mdiv.innerHTML+=Hexa[n].LC +" "+ Hexa[n].opcode +"</br>";}
+                else if(Vcode.value=='Binary')
+                    for(var n=0;n<Hexa.length;n++)
+                    {mdiv.innerHTML+=formatBin(Hexa[n].LC) +" "+ formatBin(Hexa[n].opcode) +"</br>";}
+                document.getElementById('ff').style.display=''
+            }
+            ///////DEC2HEX//////
+            function DEC2HEX(dec){
+                if (dec < 0)
+                {
+                    dec = 0xFFFF + dec + 1;
+                }
+                return formatHex(dec.toString(16).toUpperCase());
+            }
+            //////Format hexa number 4 digit///////
+            function formatHex(hex,x){
+                if(x==3) return ("000" + (hex)).slice(-3).toUpperCase();
+                else return ("0000" + (hex)).slice(-4).toUpperCase();
+            }
+            //////check in arr of object/////
+            function checkel(name,arr) {
+                var found 
+                if(arr.some(function (el) {
+                    found = el
+                    if(arr == symbolTab)
+                        return el.label == name ;
+                    else return el.ins == name ;
+                })) return found;
+            }
+            //////Format binary/////
+            function formatBin(hex){
+                return ("0000000000000000"+parseInt(hex,16).toString(2)).slice(-16);
+            }
+        </script>
+    </head>
+    <body>
+        <div id="wrapper">
+            <div id="content">
+                <div>
+                    <form>
+                        <fieldset><legend>Mano Assembly:</legend><textarea onkeypress="inite()" id="code" placeholder="Type your Assembly here..." style="height: 200px;width: 500px; float: left;"></textarea><div style="float: right"><pre style="opacity: 0.4;margin-right: 100px">Mano Assembly Example:
+ORG 10
+LDA A
+ADD B I
+STA C
+HLT
+A, DEC 1
+B, HEX 200
+C, DEC 0
+ORG 200
+DEC -10
+END</pre></div></fieldset>
+                        <br><input id="pass1" type="button" onclick="Pass1()" value="Go Pass 1">
+                        <br><input id="pass2" type="button" onclick="Pass2(cody , symbolTab)" value="Go Pass 2">
+                        &nbsp;&nbsp;&nbsp;show by :<select id="vcode" class="soflow-color">
+                            <option value="Hexadicmal">Hexadicmal</option>
+                            <option value="Binary">Binary</option>
+                        </select>
+                    </form>
+                </div>
+
+
+                </br><div>
+                    <table class="hovertable" id="SymbolTable">
+
+                    </table>
+                </div>
+                </br>   <fieldset id="ff" style="display: none;"><legend>The Machine Code:</legend>
+                    <div id="mcode">
+
+                    </div>
+                </fieldset>
+            </div>
+            <div id="footer" style="text-align: center">copyright&COPY; AbdulKader Makki & Nour Edin Al-Habal   2014-2015</div>
+        </div>
+    </body>
+
+</html>
+
+
